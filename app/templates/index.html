@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Blockchain</title>
+</head>
+<body>
+    <h1>Blockchain</h1>
+    <a href="/add">Add Block</a>
+    <ul>
+        {% for block in blockchain %}
+        <li>
+            <strong>Index:</strong> {{ block.index }} <br>
+            <strong>Timestamp:</strong> {{ block.timestamp }} <br>
+            <strong>Data:</strong> {{ block.data }} <br>
+            <strong>Previous Hash:</strong> {{ block.previous_hash }} <br>
+            <strong>Hash:</strong> {{ block.hash }} <br>
+            <hr>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
