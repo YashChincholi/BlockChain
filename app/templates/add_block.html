@@ -1,16 +1,110 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Add Block</title>
-</head>
-<body>
-    <h1>Add New Block</h1>
-    <form method="POST">
-        <label>Data:</label>
-        <input type="text" name="data" required>
-        <button type="submit">Add Block</button>
-    </form>
-    <a href="/">Back to Blockchain</a>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Add New Block{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center" data-aos="fade-down">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h2 class="mb-0">
+                        <i class="bi bi-plus-circle-fill"></i> Add New Block
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted text-center mb-4">
+                        Enter transaction data to create a new block in the blockchain
+                    </p>
+
+                    <form method="POST" id="addBlockForm">
+                        <div class="mb-4">
+                            <label for="data" class="form-label">
+                                <i class="bi bi-file-text"></i> Transaction Data
+                            </label>
+                            <textarea
+                                class="form-control form-control-lg"
+                                id="data"
+                                name="data"
+                                rows="4"
+                                placeholder="Enter transaction details (e.g., Alice sends 50 BTC to Bob)"
+                                required
+                                minlength="1"
+                                maxlength="500"></textarea>
+                            <div class="form-text">
+                                <i class="bi bi-info-circle"></i> Maximum 500 characters
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-plus-circle"></i> Add Block to Chain
+                            </button>
+                            <a href="/" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to Dashboard
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="alert alert-info mt-4" role="alert" data-aos="fade-up" data-aos-delay="200">
+                <h5 class="alert-heading">
+                    <i class="bi bi-lightbulb-fill"></i> How it works
+                </h5>
+                <p class="mb-0">
+                    When you add a block, it will be cryptographically linked to the previous block
+                    using SHA-256 hashing. This creates an immutable chain where tampering with any
+                    block would invalidate the entire chain.
+                </p>
+            </div>
+
+            <div class="card mt-4 border-0 shadow" data-aos="fade-up" data-aos-delay="400">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-stars"></i> Example Transaction Data
+                    </h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="bi bi-arrow-right-circle text-primary"></i>
+                            Alice sends 10 BTC to Bob
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-arrow-right-circle text-primary"></i>
+                            Contract deployment: Smart contract #12345
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-arrow-right-circle text-primary"></i>
+                            NFT Transfer: CryptoPunk #7523 to 0x742d...
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-arrow-right-circle text-primary"></i>
+                            Payment: Invoice #INV-2024-001 - $1,500
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('addBlockForm').addEventListener('submit', function(e) {
+    const textarea = document.getElementById('data');
+    const value = textarea.value.trim();
+
+    if (!value) {
+        e.preventDefault();
+        alert('Please enter transaction data');
+        textarea.focus();
+        return false;
+    }
+
+    const button = this.querySelector('button[type="submit"]');
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Adding Block...';
+});
+</script>
+{% endblock %}

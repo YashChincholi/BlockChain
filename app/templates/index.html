@@ -1,23 +1,190 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Simple Blockchain</title>
-</head>
-<body>
-    <h1>Blockchain</h1>
-    <a href="/add">Add Block</a>
-    <ul>
+{% extends "base.html" %}
+
+{% block title %}Blockchain Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4" data-aos="fade-down">
+        <div class="col-12">
+            <h1 class="display-4 text-center mb-4">
+                <i class="bi bi-link-45deg"></i> Blockchain Dashboard
+            </h1>
+            <p class="text-center text-muted">Visual representation of your blockchain with real-time validation</p>
+        </div>
+    </div>
+
+    <div class="row mb-5 g-4" data-aos="fade-up">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-primary">
+                    <i class="bi bi-box"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ stats.total_blocks }}</h3>
+                    <p>Total Blocks</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-success">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ 'Valid' if stats.is_valid else 'Invalid' }}</h3>
+                    <p>Chain Status</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-warning">
+                    <i class="bi bi-hash"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ stats.last_block_hash[:8] }}...</h3>
+                    <p>Last Block Hash</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-danger">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ stats.invalid_blocks|length }}</h3>
+                    <p>Invalid Blocks</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <a href="/add" class="btn btn-primary btn-lg me-2">
+                <i class="bi bi-plus-circle"></i> Add New Block
+            </a>
+            <a href="/validate" class="btn btn-success btn-lg">
+                <i class="bi bi-shield-check"></i> Validate Blockchain
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-center mb-4">
+                <i class="bi bi-diagram-3"></i> Blockchain Visualization
+            </h2>
+        </div>
+    </div>
+
+    <div class="blockchain-container">
         {% for block in blockchain %}
-        <li>
-            <strong>Index:</strong> {{ block.index }} <br>
-            <strong>Timestamp:</strong> {{ block.timestamp }} <br>
-            <strong>Data:</strong> {{ block.data }} <br>
-            <strong>Previous Hash:</strong> {{ block.previous_hash }} <br>
-            <strong>Hash:</strong> {{ block.hash }} <br>
-            <hr>
-        </li>
+        <div class="block-card {% if block.index in stats.invalid_blocks %}invalid-block{% endif %}"
+             data-aos="fade-right"
+             data-aos-delay="{{ loop.index0 * 100 }}">
+            <div class="block-header">
+                <span class="block-index">
+                    {% if block.index == 0 %}
+                        <i class="bi bi-gem"></i> Genesis Block
+                    {% else %}
+                        <i class="bi bi-box"></i> Block #{{ block.index }}
+                    {% endif %}
+                </span>
+                <span class="block-status">
+                    {% if block.index in stats.invalid_blocks %}
+                        <i class="bi bi-x-circle-fill text-danger"></i>
+                    {% else %}
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="block-body">
+                <div class="block-info">
+                    <i class="bi bi-calendar3"></i>
+                    <span class="label">Timestamp:</span>
+                    <span class="value">{{ block.get_formatted_timestamp() }}</span>
+                </div>
+                <div class="block-info">
+                    <i class="bi bi-file-text"></i>
+                    <span class="label">Data:</span>
+                    <span class="value data-field">{{ block.data }}</span>
+                </div>
+                <div class="block-info">
+                    <i class="bi bi-link-45deg"></i>
+                    <span class="label">Previous Hash:</span>
+                    <span class="value hash-field" title="{{ block.previous_hash }}">
+                        {{ block.previous_hash[:16] }}...
+                    </span>
+                </div>
+                <div class="block-info">
+                    <i class="bi bi-hash"></i>
+                    <span class="label">Current Hash:</span>
+                    <span class="value hash-field" title="{{ block.hash }}">
+                        {{ block.hash[:16] }}...
+                    </span>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-outline-primary w-100 mt-2"
+                    data-bs-toggle="modal"
+                    data-bs-target="#blockModal{{ block.index }}">
+                <i class="bi bi-eye"></i> View Details
+            </button>
+        </div>
+
+        {% if not loop.last %}
+        <div class="block-connector" data-aos="fade-right" data-aos-delay="{{ loop.index0 * 100 + 50 }}">
+            <i class="bi bi-arrow-right"></i>
+        </div>
+        {% endif %}
+
+        <div class="modal fade" id="blockModal{{ block.index }}" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            {% if block.index == 0 %}
+                                <i class="bi bi-gem"></i> Genesis Block Details
+                            {% else %}
+                                <i class="bi bi-box"></i> Block #{{ block.index }} Details
+                            {% endif %}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="detail-row">
+                            <strong><i class="bi bi-hash"></i> Index:</strong>
+                            <span>{{ block.index }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <strong><i class="bi bi-calendar3"></i> Timestamp:</strong>
+                            <span>{{ block.get_formatted_timestamp() }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <strong><i class="bi bi-calendar3"></i> Unix Time:</strong>
+                            <span>{{ block.timestamp }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <strong><i class="bi bi-file-text"></i> Data:</strong>
+                            <span class="data-field">{{ block.data }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <strong><i class="bi bi-link-45deg"></i> Previous Hash:</strong>
+                            <code class="hash-full">{{ block.previous_hash }}</code>
+                        </div>
+                        <div class="detail-row">
+                            <strong><i class="bi bi-hash"></i> Current Hash:</strong>
+                            <code class="hash-full">{{ block.hash }}</code>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         {% endfor %}
-    </ul>
-</body>
-</html>
+    </div>
+</div>
+{% endblock %}
