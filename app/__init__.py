@@ -25,6 +25,12 @@ def create_app():
         app.logger.info('Blockchain application startup')
 
     from app.routes import main
+    from app.api import api
+
     app.register_blueprint(main)
+    app.register_blueprint(api)
+
+    if not os.path.exists('data'):
+        os.makedirs('data')
 
     return app
